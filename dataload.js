@@ -1,3 +1,5 @@
+// Scrape saal website and load data into postgress database
+
 // Require database connection
 const db = require('./db.js').dbConnection;
 // Import custom webscraping functions
@@ -8,7 +10,7 @@ const query = {
     values: [],
 }
 
-const createTable = {
+const createMeetingsTable = {
     text: `CREATE TABLE meetings(
         id serial PRIMARY KEY,
         name VARCHAR (100) NOT NULL,

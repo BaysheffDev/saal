@@ -1,3 +1,5 @@
+// Scrape saal website data using custome helper functions and write to csv files per meeting
+
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 

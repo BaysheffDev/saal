@@ -1,8 +1,34 @@
+// Functions to scrape data from saal website
+
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 
 // Base url to get meetings and race results
 const baseUrl = 'https://www.saal.org.au/index.php/?id=30';
+
+// Object to convert month words into numbers
+var months = {
+    'Jan' : '01',
+    'Feb' : '02',
+    'Mar' : '03',
+    'Apr' : '04',
+    'May' : '05',
+    'Jun' : '06',
+    'Jul' : '07',
+    'Aug' : '08',
+    'Sep' : '09',
+    'Oct' : '10',
+    'Nov' : '11',
+    'Dec' : '12'
+}
+
+// Convert saal website dates into SQL format
+const sqlDateFormat = (date) => {
+  const dateComponents = date.trim().split(' ');
+  const monthNumber = months[dateComponents[0]];
+  const date = dateComponents[2] + "-" + monthNumber + "-" + dateComponents[1];
+  return date;
+}
 
 //
 // Get names & dates and links of all race meetings available on site
@@ -20,8 +46,7 @@ const getMeetings = () => {
             const title = $(el).text().split('-');
             const link = $(el).attr('href');
             meetInfo["name"] = title[0];
-
-            meetInfo["date"] = title[1];
+            meetInfo["date"] = sqlDateFormat(title[1]);
             // TODO:
             // Parse date correctly
             meetInfo["link"] = link.split('&')[1];
