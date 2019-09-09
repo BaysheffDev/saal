@@ -1,5 +1,7 @@
 // Require database connection
 const db = require('./db.js').dbConnection;
+// Import custom webscraping functions
+const saal = require('./saalWebsiteData.js');
 
 const query = {
     text: 'SELECT *',
@@ -15,22 +17,25 @@ const createTable = {
     values: [],
 }
 
-
-var months = {
-    'Jan' : '01',
-    'Feb' : '02',
-    'Mar' : '03',
-    'Apr' : '04',
-    'May' : '05',
-    'Jun' : '06',
-    'Jul' : '07',
-    'Aug' : '08',
-    'Sep' : '09',
-    'Oct' : '10',
-    'Nov' : '11',
-    'Dec' : '12'
+const insertMeets = (name, date) => {
+  const insertQuery = {
+    text: `INSERT INTO meetings(name, date) VALUES($1 $2)`,
+    values: [name, date],
+  }
+  return insertQuery;
 }
 
-db.query(query)
-    .then(res => console.log(res))
-    .catch(err => console.log("COULDN'T RUN QUERY ", err))
+async function insertMeetings() {
+  const meetings = await saal.getMeetings();
+  for (let i = 0, len = meetings.length; i < len; i++) {
+    // db.query(insertMeets(meetings[i].name, meeting[i].date))
+    //     .then(res => console.log(res))
+    //     .catch(err => console.log("COULDN'T RUN QUERY ", err))
+    console.log(meetings[i].name);
+    console.log(meetings[i].date);
+  }
+}
+
+// db.query(createTable)
+//     .then(res => console.log(res))
+//     .catch(err => console.log("COULDN'T RUN QUERY ", err))

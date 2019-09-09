@@ -6,7 +6,7 @@ const baseUrl = 'https://www.saal.org.au/index.php/?id=30';
 
 //
 // Get names & dates and links of all race meetings available on site
-// Returns an array of objects where each object is the name and link for 1 meet
+// Returns an array of objects where each object containes the Name, Date and Link for 1 meet
 const getMeetings = () => {
     const options = {
         url: `${baseUrl}`,
@@ -20,7 +20,10 @@ const getMeetings = () => {
             const title = $(el).text().split('-');
             const link = $(el).attr('href');
             meetInfo["name"] = title[0];
+
             meetInfo["date"] = title[1];
+            // TODO:
+            // Parse date correctly
             meetInfo["link"] = link.split('&')[1];
             raceMeets.push(meetInfo);
         });
