@@ -12,6 +12,7 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 // Get race meetings
 async function meetings() {
     const meetings = await saal.getMeetings();
+    console.log(meetings);
     return meetings;
 }
 
@@ -59,6 +60,7 @@ async function raceResultsToCsvFiles() {
 }
 
 // raceResultsToCsvFiles();
+meetings();
 
 
 

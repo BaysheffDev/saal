@@ -26,8 +26,9 @@ var months = {
 const sqlDateFormat = (date) => {
   const dateComponents = date.trim().split(' ');
   const monthNumber = months[dateComponents[0]];
-  const date = dateComponents[2] + "-" + monthNumber + "-" + dateComponents[1];
-  return date;
+  const dayComponents = dateComponents[1].split(/(\d+)/);
+  const sqlDate = dateComponents[2] + "-" + monthNumber + "-" + dayComponents[1];
+  return sqlDate;
 }
 
 //
@@ -46,9 +47,7 @@ const getMeetings = () => {
             const title = $(el).text().split('-');
             const link = $(el).attr('href');
             meetInfo["name"] = title[0];
-            meetInfo["date"] = sqlDateFormat(title[1]);
-            // TODO:
-            // Parse date correctly
+            meetInfo["date"] = sqlDateFormat(title[title.length-1]);
             meetInfo["link"] = link.split('&')[1];
             raceMeets.push(meetInfo);
         });
@@ -102,6 +101,10 @@ const getRaceResults = (raceAndMeeting) => {
             });
             results.push(result);
         });
+        // Format marks by removing "m"
+        for (let i = 0, len = results.length; i < len; i++) {
+          results[i].mark = results[i].mark.split('m')[0];
+        }
         return results;
     })
     .catch(err => console.log("Error: getRaceResults - ", err));

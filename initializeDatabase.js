@@ -1,7 +1,12 @@
 // Require database connection
 const db = require('./db.js').dbConnection;
 
-const query = {
+// db.query('SELECT NOW()', (err, res) => {
+//   console.log(err, res)
+//   db.end()
+// })
+
+const selectAll = {
     text: 'SELECT *',
     values: [],
 }
@@ -47,3 +52,41 @@ const createAthletesTable = {
     )`,
     values: [],
 }
+
+// Run queries
+// Input: array of query objects
+function runQueries(queries) {
+  for (let i = 0, len = queries.length; i < len; i++) {
+    db.query(queries[i])
+    .then(res => console.log(res))
+    .catch(err => console.log(`Error running query: ${queries[i].text} --- ${err}`))
+  }
+}
+
+const testTable = {
+    text: `
+    CREATE TABLE test(
+        id serial PRIMARY KEY,
+        name VARCHAR(10) NOT NULL
+    )`,
+    values: [],
+}
+const testTable2 = {
+    text: `
+    CREATE TABLE test2(
+        id serial PRIMARY KEY,
+        color VARCHAR(10) NOT NULL
+    )`,
+    values: [],
+}
+
+const tableQueries = [
+  // createMeetingsTable,
+  // createEventsTable,
+  // createResultsTable,
+  // createAthletesTable
+  testTable,
+  testTable2
+];
+
+runQueries(tableQueries);
