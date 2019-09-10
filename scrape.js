@@ -35,7 +35,7 @@ async function meetingRaces() {
 // Get race results for each race
 async function raceResultsToCsvFiles() {
     const data = await meetingRaces();
-    for (let i = 0, len = data.length; i < len; i++) {
+    for (let i = 0, len = data.length; i < 1; i++) {
         // Initialize new csv file
         const csvWriter = createCsvWriter({
             path: `meeting${i}.csv`,
@@ -44,7 +44,8 @@ async function raceResultsToCsvFiles() {
                 {id: 'name', title: 'NAME'},
                 {id: 'color', title: 'COLOR'},
                 {id: 'mark', title: 'MARK'},
-                {id: 'time', title: 'TIME'}
+                {id: 'time', title: 'TIME'},
+                {id: 'round', title: 'ROUND'}
             ]
         });
         for (let j = 0, len = data[i].races.length; j < len; j++) {
@@ -59,14 +60,4 @@ async function raceResultsToCsvFiles() {
     }
 }
 
-// raceResultsToCsvFiles();
-meetings();
-
-
-
-// Write records to csv file
-// csvWriter.writeRecords(records)      // returns a promise
-//   .then(() => {
-//     console.log(records);
-//       console.log('...Done');
-//   });
+raceResultsToCsvFiles();

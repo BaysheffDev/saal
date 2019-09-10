@@ -38,8 +38,9 @@ const createResultsTable = {
         event_id INTEGER REFERENCES events(id),
         athlete_id INTEGER REFERENCES athletes(id),
         mark NUMERIC(4,2),
-        time VARCHAR(10)
+        time VARCHAR(10),
         position INTEGER NOT NULL,
+        round VARCHAR(10)
     )`,
     values: [],
 }
@@ -48,7 +49,7 @@ const createAthletesTable = {
     text: `
     CREATE TABLE meetings(
         id serial PRIMARY KEY,
-        name VARCHAR (100) NOT NULL,
+        name VARCHAR (100) NOT NULL
     )`,
     values: [],
 }
@@ -81,12 +82,12 @@ const testTable2 = {
 }
 
 const tableQueries = [
-  // createMeetingsTable,
-  // createEventsTable,
-  // createResultsTable,
-  // createAthletesTable
-  testTable,
-  testTable2
+  createMeetingsTable,
+  createEventsTable,
+  createResultsTable,
+  createAthletesTable
+  // testTable,
+  // testTable2
 ];
 
 runQueries(tableQueries);

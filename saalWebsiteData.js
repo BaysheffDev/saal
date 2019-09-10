@@ -84,6 +84,8 @@ const getMeetingRaces = (meeting) => {
 // Get meeting race results
 // Returns an array of objects where each object is 1 race
 const getRaceResults = (raceAndMeeting) => {
+    // Identifiers for prescence of heat, semi and final
+    const raceRounds = ["heat", "semi", "final"];
     // Headings for csv file
     const headings = ['position', 'name', 'color', 'mark', 'time'];
     const options = {
@@ -93,14 +95,23 @@ const getRaceResults = (raceAndMeeting) => {
     return rp(options)
     .then(function ($) {
         const results = [];
-        $('tr').each(function() {
-            let result = {};
-            $(this).find('td').each(function(i, el) {
-                const data = $(el).text().trim();
-                result[headings[i]] = data;
+        // Identify heats, semis and finals
+        const pageContent = $('#mainContent').text();
+        const raceRounds = pageContent.match(/Heat|Semi|Final/g);
+        // Get all race results
+        $('table').each(function(i) {
+            $(this).find('tr').each(function() {
+                let result = {};
+                $(this).find('td').each(function(j) {
+                    const data = $(this).text().trim();
+                    result[headings[j]] = data;
+                });
+                if (Object.keys(result).length > 0) {
+                    result['round'] = raceRounds[i];
+                    results.push(result);
+                }
             });
-            results.push(result);
-        });
+        })
         // Format marks by removing "m"
         for (let i = 0, len = results.length; i < len; i++) {
           results[i].mark = results[i].mark.split('m')[0];
@@ -109,6 +120,29 @@ const getRaceResults = (raceAndMeeting) => {
     })
     .catch(err => console.log("Error: getRaceResults - ", err));
 }
+
+// const test = () => {
+//     const options = {
+//       url: `https://www.saal.org.au/index.php?id=30&race=1729&meeting=159`,
+//       transform: body => cheerio.load(body)
+//     }
+//
+//
+//     rp(options)
+//     .then(function ($) {
+//         const pageContent = $('#mainContent').text();
+//         const raceRounds = results.match(/Heat|Semi|Final/g);
+//         console.log(res);
+//     })
+//     .catch(err => console.log("Error: getRaceResults - ", err));
+// }
+
+async function test() {
+    const g = await getRaceResults('race=1729&meeting=159');
+    console.log(g);
+}
+
+test();
 
 module.exports = {
     getMeetings: getMeetings,
