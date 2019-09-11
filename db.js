@@ -12,11 +12,6 @@ const db = new Pool({
 	connectionString: connectionString,
 })
 
-db.query('SELECT NOW()', (err, res) => {
-  console.log(err, res)
-  db.end()
-})
-
 module.exports = {
   dbConnection: db
 }

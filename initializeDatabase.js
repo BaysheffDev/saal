@@ -31,6 +31,15 @@ const createEventsTable = {
     values: [],
 }
 
+const createAthletesTable = {
+  text: `
+  CREATE TABLE athletes(
+    id serial PRIMARY KEY,
+    name VARCHAR (100) NOT NULL
+  )`,
+  values: [],
+}
+
 const createResultsTable = {
     text: `
     CREATE TABLE results(
@@ -45,24 +54,7 @@ const createResultsTable = {
     values: [],
 }
 
-const createAthletesTable = {
-    text: `
-    CREATE TABLE meetings(
-        id serial PRIMARY KEY,
-        name VARCHAR (100) NOT NULL
-    )`,
-    values: [],
-}
 
-// Run queries
-// Input: array of query objects
-function runQueries(queries) {
-  for (let i = 0, len = queries.length; i < len; i++) {
-    db.query(queries[i])
-    .then(res => console.log(res))
-    .catch(err => console.log(`Error running query: ${queries[i].text} --- ${err}`))
-  }
-}
 
 const testTable = {
     text: `
@@ -76,7 +68,8 @@ const testTable2 = {
     text: `
     CREATE TABLE test2(
         id serial PRIMARY KEY,
-        color VARCHAR(10) NOT NULL
+        color VARCHAR(10) NOT NULL,
+        test1_id INTEGER REFERENCES test(id)
     )`,
     values: [],
 }
@@ -84,10 +77,29 @@ const testTable2 = {
 const tableQueries = [
   createMeetingsTable,
   createEventsTable,
+  createAthletesTable,
   createResultsTable,
-  createAthletesTable
   // testTable,
   // testTable2
 ];
 
-runQueries(tableQueries);
+// Run queries
+// Input: array of query objects
+async function runQueries2(queries) {
+  for (let i = 0, len = queries.length; i < len; i++) {
+      await db.query(queries[i])
+            .then(res => console.log(res))
+            .catch(err => console.log("Error - ", err));
+  }
+}
+
+const runQueries = function(queries) {
+  let p = Promise.resolve();
+  queries.forEach(q =>
+      p = p.then(() => db.query(q))
+           .catch(err => console.log(err))
+  );
+  return p;
+};
+
+runQueries2(tableQueries);
