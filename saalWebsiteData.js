@@ -142,7 +142,7 @@ async function test() {
     console.log(g);
 }
 
-test();
+// test();
 
 module.exports = {
     getMeetings: getMeetings,

@@ -35,7 +35,7 @@ async function meetingRaces() {
 // Get race results for each race
 async function raceResultsToCsvFiles() {
     const data = await meetingRaces();
-    for (let i = 0, len = data.length; i < 1; i++) {
+    for (let i = 0, len = data.length; i < len; i++) {
         // Initialize new csv file
         const csvWriter = createCsvWriter({
             path: `meeting${i}.csv`,

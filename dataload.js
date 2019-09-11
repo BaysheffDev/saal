@@ -1,43 +1,66 @@
-// Scrape saal website and load data into postgress database
+/*
+* Scrape saal website and load data into postgress database
+*/
 
 // Require database connection
 const db = require('./db.js').dbConnection;
 // Import custom webscraping functions
 const saal = require('./saalWebsiteData.js');
 
-const query = {
-    text: 'SELECT *',
-    values: [],
+const insertMeeting = (name, date) => {
+    const insertQuery = {
+        text: `INSERT INTO meetings(name, date) VALUES($1, $2) RETURNING id`,
+        values: [name, date],
+    }
+    return insertQuery;
 }
 
-const createMeetingsTable = {
-    text: `CREATE TABLE meetings(
-        id serial PRIMARY KEY,
-        name VARCHAR (100) NOT NULL,
-        date DATE NOT NULL
-    )`,
-    values: [],
+const insertEvent = (meetingId, name) => {
+    const insertQuery = {
+      text: `INSERT INTO events(meeting_id, name) VALUES($1, $2)`,
+      values: [meetingId, name],
+    }
+    return insertQuery;
 }
 
-const insertMeets = (name, date) => {
-  const insertQuery = {
-    text: `INSERT INTO meetings(name, date) VALUES($1 $2)`,
-    values: [name, date],
-  }
-  return insertQuery;
+const insertAthlete = (name) => {
+    const insertQuery = {
+      text: `INSERT INTO events(name) VALUES($1)`,
+      values: [name],
+    }
+    return insertQuery;
 }
 
-async function insertMeetings() {
-  const meetings = await saal.getMeetings();
-  for (let i = 0, len = meetings.length; i < len; i++) {
-    // db.query(insertMeets(meetings[i].name, meeting[i].date))
-    //     .then(res => console.log(res))
-    //     .catch(err => console.log("COULDN'T RUN QUERY ", err))
-    console.log(meetings[i].name);
-    console.log(meetings[i].date);
-  }
+const insertResult = (eventId, athleteId, mark, time, position, round) => {
+    const insertQuery = {
+      text: `INSERT INTO events(event_id, athlete_id, mark, time, position, round) VALUES($1, $2, $3, $4, $5, $6)`,
+      values: [eventId, athleteId, mark, time, position, round],
+    }
+    return insertQuery;
 }
 
-// db.query(createTable)
-//     .then(res => console.log(res))
-//     .catch(err => console.log("COULDN'T RUN QUERY ", err))
+async function loadData() {
+    const meetings = await saal.getMeetings();
+    for (let i = 0, len = meetings.length; i < len; i++) {
+        try {
+            const res = await db.query(insertMeeting(meetings[i].name, meetings[i].date))
+            console.log("HEHEHEHE: ", res.rows[0]);
+        }
+        catch (err) {
+            console.log("COULDN'T RUN QUERY ", err)
+        }
+    }
+}
+
+async function raceResultsToCsvFiles() {
+    const data = await meetingRaces();
+    for (let i = 0, len = data.length; i < len; i++) {
+
+        for (let j = 0, len = data[i].races.length; j < len; j++) {
+            const raceData = await saal.getRaceResults(data[i].races[j].link);
+            console.log("==================== ", raceData);
+        }
+    }
+}
+
+loadData();

@@ -54,38 +54,16 @@ const createResultsTable = {
     values: [],
 }
 
-
-
-const testTable = {
-    text: `
-    CREATE TABLE test(
-        id serial PRIMARY KEY,
-        name VARCHAR(10) NOT NULL
-    )`,
-    values: [],
-}
-const testTable2 = {
-    text: `
-    CREATE TABLE test2(
-        id serial PRIMARY KEY,
-        color VARCHAR(10) NOT NULL,
-        test1_id INTEGER REFERENCES test(id)
-    )`,
-    values: [],
-}
-
 const tableQueries = [
   createMeetingsTable,
   createEventsTable,
   createAthletesTable,
   createResultsTable,
-  // testTable,
-  // testTable2
 ];
 
 // Run queries
 // Input: array of query objects
-async function runQueries2(queries) {
+async function runQueries(queries) {
   for (let i = 0, len = queries.length; i < len; i++) {
       await db.query(queries[i])
             .then(res => console.log(res))
@@ -93,13 +71,4 @@ async function runQueries2(queries) {
   }
 }
 
-const runQueries = function(queries) {
-  let p = Promise.resolve();
-  queries.forEach(q =>
-      p = p.then(() => db.query(q))
-           .catch(err => console.log(err))
-  );
-  return p;
-};
-
-runQueries2(tableQueries);
+runQueries(tableQueries);
