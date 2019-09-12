@@ -46,9 +46,9 @@ const createResultsTable = {
         id serial PRIMARY KEY,
         event_id INTEGER REFERENCES events(id),
         athlete_id INTEGER REFERENCES athletes(id),
-        mark NUMERIC(4,2),
+        mark NUMERIC(6,2),
         time VARCHAR(10),
-        position INTEGER NOT NULL,
+        position VARCHAR(4) NOT NULL,
         round VARCHAR(10)
     )`,
     values: [],

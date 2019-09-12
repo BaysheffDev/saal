@@ -33,7 +33,7 @@ const checkAthlete = (name) => {
 
 const insertAthlete = (name) => {
     const insertQuery = {
-      text: `INSERT INTO events(name) VALUES($1) RETURNING id`,
+      text: `INSERT INTO athletes(name) VALUES($1) RETURNING id`,
       values: [name],
     }
     return insertQuery;
@@ -41,16 +41,16 @@ const insertAthlete = (name) => {
 
 const insertResult = (eventId, athleteId, mark, time, position, round) => {
     const insertQuery = {
-      text: `INSERT INTO events(event_id, athlete_id, mark, time, position, round) VALUES($1, $2, $3, $4, $5, $6) RETURNING *`,
+      text: `INSERT INTO results(event_id, athlete_id, mark, time, position, round) VALUES($1, $2, $3, $4, $5, $6) RETURNING *`,
       values: [eventId, athleteId, mark, time, position, round],
     }
     return insertQuery;
 }
-
+// 51 meetings should be 3 seasons back
 async function loadData() {
     const meetings = await saal.getMeetings();
     // Insert meetings into meetings table
-    for (let i = 0, len = meetings.length; i < 1; i++) {
+    for (let i = 0; i < 51; i++) {
         try {
             const newMeeting = await db.query(insertMeeting(meetings[i].name, meetings[i].date))
             console.log("New meeting: ", newMeeting);
@@ -59,29 +59,36 @@ async function loadData() {
             for (let j = 0, len = events.length; j < len; j++) {
               try {
                 const meetingId = newMeeting.rows[0].id;
-                const newEvent = await db.query(insertEvent(events[j].name, meetingId));
+                const newEvent = await db.query(insertEvent(meetingId, events[j].name));
                 console.log("New Event: ", newEvent);
                 const eventId = newEvent.rows[0].id;
-                const results = await saal.getRaceReults(events[j].link);
+                const results = await saal.getRaceResults(events[j].link);
                 // Insert results for each event into results table with event id as FK
                 for (let k = 0, len = results.length; k < len; k++) {
                   // Check if athlete exists in athletes table. If no, add them.
                   // Set the athlete id
-                  const athleteId = 0;
+                  let athleteId = 0;
                   try {
-                    const athleteCheck = db.query(checkAthlete(results[k].name));
-                    if (!athleteCheck.rows[0].id) {
-                      const newAthlete = db.query(insertAthlete(results[k].name));
-                      athleteId = newAthlete.rows[0].id;
-                      console.log("New Athlete: ", athleteId);
+                    const athleteCheck = await db.query(checkAthlete(results[k].name));
+                    console.log("ATHLETE CHECK: ", athleteCheck);
+                    console.log("===================");
+                    if (athleteCheck.rows.length < 1) {
+                        try {
+                            const newAthlete = await db.query(insertAthlete(results[k].name));
+                            athleteId = newAthlete.rows[0].id;
+                            console.log("New Athlete: ", athleteId);
+                        }
+                        catch(err) {
+                            console.log("ERROR AT ATHLETE INSERT LEVEL ", err)
+                        }
                     }
                     else {
-                      athleteId = athleteCheck.rows[0].id;
-                      console.log("Athlete Exists: ", athleteId);
+                        athleteId = athleteCheck.rows[0].id;
+                        console.log("Athlete Exists: ", athleteId);
                     }
                   }
                   catch(err) {
-                    console.log("ERROR AT ATHLETE LEVEL ", err)
+                    console.log("ERROR AT ATHLETE CHECK LEVEL ", err)
                   }
                   // Insert result
                   const mark = results[k].mark;
@@ -89,7 +96,7 @@ async function loadData() {
                   const position = results[k].position;
                   const round = results[k].round;
                   try {
-                    const newResult = db.query(insertResult(eventId, athleteId, mark, time, position, round));
+                    const newResult = await db.query(insertResult(eventId, athleteId, mark, time, position, round));
                     console.log("New Result: ", newResult);
                   }
                   catch (err) {
