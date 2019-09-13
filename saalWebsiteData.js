@@ -70,7 +70,8 @@ const getMeetingRaces = (meeting) => {
             const raceInfo = {};
             const name = $(el).text();
             const link = $(el).attr('href');
-            raceInfo["name"] = name;
+            raceInfo["distance"] = name.split(" ")[0];
+            raceInfo["category"] = name.substr(name.indexOf(" ") + 1);
             let urlParams = link.split('&');
             raceInfo["link"] = urlParams[1] + "&" + urlParams[2];
             races.push(raceInfo);

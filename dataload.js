@@ -15,10 +15,10 @@ const insertMeeting = (name, date) => {
     return insertQuery;
 }
 
-const insertEvent = (meetingId, name) => {
+const insertEvent = (meetingId, distance, category) => {
     const insertQuery = {
-      text: `INSERT INTO events(meeting_id, name) VALUES($1, $2) RETURNING id`,
-      values: [meetingId, name],
+      text: `INSERT INTO events(meeting_id, distance, category) VALUES($1, $2, $3) RETURNING id`,
+      values: [meetingId, distance, category],
     }
     return insertQuery;
 }
@@ -53,12 +53,11 @@ async function athleteQuery(name) {
   let id = 0;
   try {
     const athleteCheck = await db.query(checkAthlete(name));
-    console.log("ATHLETE CHECK: ", athleteCheck.rows);
     if (athleteCheck.rows.length < 1) {
         try {
             const newAthlete = await db.query(insertAthlete(name));
             id = newAthlete.rows[0].id;
-            console.log("New Athlete: ", athleteId);
+            console.log("New Athlete: ", id);
         }
         catch(err) {
             console.log("ERROR AT ATHLETE INSERT LEVEL ", err)
@@ -66,7 +65,7 @@ async function athleteQuery(name) {
     }
     else {
         id = athleteCheck.rows[0].id;
-        console.log("Athlete Exists: ", athleteId);
+        console.log("Athlete Exists: ", id);
     }
   }
   catch(err) {
@@ -76,10 +75,11 @@ async function athleteQuery(name) {
 }
 
 // 51 meetings should be 3 seasons back
+const numberOfMeetings = 51;
 async function loadData() {
     const meetings = await saal.getMeetings();
     // Insert meetings into meetings table
-    for (let i = 0; i < 51; i++) {
+    for (let i = 0; i < numberOfMeetings; i++) {
         try {
             const newMeeting = await db.query(insertMeeting(meetings[i].name, meetings[i].date))
             const events = await saal.getMeetingRaces(meetings[i].link);
@@ -87,7 +87,7 @@ async function loadData() {
             for (let j = 0, len = events.length; j < len; j++) {
               try {
                 const meetingId = newMeeting.rows[0].id;
-                const newEvent = await db.query(insertEvent(meetingId, events[j].name));
+                const newEvent = await db.query(insertEvent(meetingId, events[j].distance, events[j].category));
                 const eventId = newEvent.rows[0].id;
                 const results = await saal.getRaceResults(events[j].link);
                 // Insert results for each event into results table with event id as FK
@@ -97,7 +97,7 @@ async function loadData() {
                   // Insert result
                   try {
                     const newResult = await db.query(
-                      insertResult(eventId, athleteId, results[k].mark, results[k].time, results[k].position, results[k].round);
+                      insertResult(eventId, athleteId, results[k].mark, results[k].time, results[k].position, results[k].round)
                     );
                   }
                   catch (err) {
@@ -116,7 +116,7 @@ async function loadData() {
     }
 }
 
-async function raceResultsToCsvFiles() {
+async function test() {
     const data = await meetingRaces();
     for (let i = 0, len = data.length; i < len; i++) {
 
