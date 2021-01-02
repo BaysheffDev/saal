@@ -88,7 +88,7 @@ const getRaceResults = (raceAndMeeting) => {
     // Identifiers for prescence of heat, semi and final
     const raceRounds = ["heat", "semi", "final"];
     // Headings for csv file
-    const headings = ['position', 'name', 'color', 'mark', 'time'];
+    const headings = ['position', 'name', 'color', 'mark', 'time', 'adjtime', 'zscore', 'zscore1u1d'];
     const options = {
       url: `${baseUrl}&${raceAndMeeting}`,
       transform: body => cheerio.load(body)

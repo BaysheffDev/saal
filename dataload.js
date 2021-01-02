@@ -2,6 +2,10 @@
 * Scrape saal website and load data into postgress database
 */
 
+// 51 meetings should be 3 seasons back
+const numberOfMeetings = 171;
+
+
 // Require database connection
 const db = require('./db.js').dbConnection;
 // Import custom webscraping functions
@@ -39,10 +43,10 @@ const insertAthlete = (name) => {
     return insertQuery;
 }
 
-const insertResult = (eventId, athleteId, mark, time, position, round) => {
+const insertResult = (eventId, athleteId, mark, time, adjTime, position, round, zscore, zscore1u1d) => {
     const insertQuery = {
-      text: `INSERT INTO results(event_id, athlete_id, mark, time, position, round) VALUES($1, $2, $3, $4, $5, $6) RETURNING *`,
-      values: [eventId, athleteId, mark, time, position, round],
+      text: `INSERT INTO results(event_id, athlete_id, mark, time, adj_time, position, round, zscore, zscore_1u1d) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      values: [eventId, athleteId, mark, time, adjTime, position, round, zscore, zscore1u1d],
     }
     return insertQuery;
 }
@@ -74,8 +78,6 @@ async function athleteQuery(name) {
   return id;
 }
 
-// 51 meetings should be 3 seasons back
-const numberOfMeetings = 51;
 async function loadData() {
     const meetings = await saal.getMeetings();
     // Insert meetings into meetings table
@@ -97,7 +99,7 @@ async function loadData() {
                   // Insert result
                   try {
                     const newResult = await db.query(
-                      insertResult(eventId, athleteId, results[k].mark, results[k].time, results[k].position, results[k].round)
+                      insertResult(eventId, athleteId, results[k].mark, results[k].time, results[k].adjtime, results[k].position, results[k].round, results[k].zscore, results[k].zscore1u1d)
                     );
                   }
                   catch (err) {
